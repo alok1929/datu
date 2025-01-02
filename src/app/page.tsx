@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 
 const dateOptions = [
   { id: '1', date: 'Saturday, Jan 10, 2024' },
-  { id: '2', date: 'Sunday, July 11, 2024' },
+  { id: '2', date: 'Sunday, Jan 11, 2024' },
 ]
 
 const timelineItems = [
