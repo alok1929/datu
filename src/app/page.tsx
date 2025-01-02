@@ -132,7 +132,7 @@ export default function RetroRSVPCard() {
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="timeline">
             <AccordionTrigger className="text-orange-800 hover:text-orange-600">
-              View Date Timeline
+              Where are we going ? 
             </AccordionTrigger>
             <AccordionContent>
               <ol className="relative border-l border-orange-500 ml-3">
