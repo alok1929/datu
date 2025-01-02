@@ -1,101 +1,170 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import React, { useState } from 'react'
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { FloatingPeacock, RunningCheetah } from './components/background-animations'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Utensils, ShoppingBag, TreesIcon as Tree, AlertCircle } from 'lucide-react'
+import { Alert, AlertDescription } from "@/components/ui/alert"
+
+const dateOptions = [
+  { id: '1', date: 'Saturday, Jan 10, 2024' },
+  { id: '2', date: 'Sunday, July 11, 2024' },
+]
+
+const timelineItems = [
+  { id: '1', title: 'Mini Punjabi Dhaba', description: 'Savor authentic Punjabi flavors', icon: Utensils },
+  { id: '2', title: 'Clothes Shopping', description: 'Explore local fashion boutiques', icon: ShoppingBag },
+  { id: '3', title: 'Lalbagh Botanical Garden', description: 'Stroll through lush greenery', icon: Tree },
+]
+
+export default function RetroRSVPCard() {
+  const [selectedDate, setSelectedDate] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess(false);
+
+    if (!selectedDate) {
+      setError('Please select a date before submitting.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ selectedDate: selectedDate }),
+      });
+
+      // Debug response
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+      
+      // Try to get the response text first
+      const responseText = await response.text();
+      console.log('Response text:', responseText);
+      
+      let data;
+      try {
+        // Try to parse the response text as JSON
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Failed to parse response as JSON:', e);
+        console.error('Raw response:', responseText);
+        throw new Error(`Server returned invalid JSON. Status: ${response.status}`);
+      }
+
+      if (response.ok) {
+        setSuccess(true);
+        setSelectedDate('');
+      } else {
+        setError(data.message || 'Failed to submit RSVP. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error submitting RSVP:', error);
+      setError('Unable to submit RSVP. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="relative flex items-center justify-center min-h-screen bg-amber-100 overflow-hidden p-4">
+      {/* Background Animations */}
+      <FloatingPeacock className="absolute top-10 left-10 animate-float" />
+      <FloatingPeacock className="absolute bottom-20 right-20 animate-float-reverse" />
+      <FloatingPeacock className="absolute top-1/2 left-1/4 animate-float-slow" />
+      <RunningCheetah className="absolute bottom-10 left-0 animate-run" />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      <div className="w-full max-w-md p-8 bg-orange-200 border-4 border-orange-500 rounded-lg shadow-lg relative z-10">
+        <div className="text-center mb-6">
+          <h1 className="text-4xl font-bold text-orange-800 mb-2" style={{ fontFamily: "'Brush Script MT', cursive" }}>RSVP</h1>
+          <h2 className="text-2xl font-semibold text-orange-700">for a Retro Date in Basavanagudi</h2>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {success && (
+          <Alert className="mb-4 bg-green-100 text-green-800 border-green-200">
+            <AlertDescription>Thank you for your RSVP! A confirmation email has been sent.</AlertDescription>
+          </Alert>
+        )}
+        
+        <div className="border-2 border-orange-500 border-dashed p-4 mb-6">
+          <form onSubmit={handleSubmit}>
+            <RadioGroup value={selectedDate} onValueChange={setSelectedDate} className="space-y-4">
+              {dateOptions.map((option) => (
+                <div key={option.id} className="flex items-center">
+                  <RadioGroupItem value={option.date} id={option.id} className="text-orange-500" />
+                  <Label htmlFor={option.id} className="ml-2 text-lg text-orange-800">
+                    {option.date}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+            
+            <Button 
+              type="submit" 
+              className="w-full mt-6 bg-orange-500 hover:bg-orange-600 text-white"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Sending...' : 'Send RSVP'}
+            </Button>
+          </form>
+        </div>
+        
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="timeline">
+            <AccordionTrigger className="text-orange-800 hover:text-orange-600">
+              View Date Timeline
+            </AccordionTrigger>
+            <AccordionContent>
+              <ol className="relative border-l border-orange-500 ml-3">
+                {timelineItems.map((item) => (
+                  <li key={item.id} className="mb-10 ml-6">
+                    <span className="absolute flex items-center justify-center w-8 h-8 bg-orange-300 rounded-full -left-4 ring-4 ring-orange-200">
+                      <item.icon className="w-4 h-4 text-orange-700" />
+                    </span>
+                    <h3 className="flex items-center mb-1 text-lg font-semibold text-orange-800">
+                      {item.title}
+                    </h3>
+                    <p className="mb-4 text-base font-normal text-orange-700">
+                      {item.description}
+                    </p>
+                  </li>
+                ))}
+              </ol>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+        
+        <div className="text-center text-orange-700 mt-6">
+          <p>Come off my cutie❤️</p>
+          <p className="mt-2">Location: Basavanagudi, Bangalore</p>
+        </div>
+        
+        {/* Retro decorative elements */}
+        <div className="absolute top-4 left-4 w-8 h-8 border-t-4 border-l-4 border-orange-500"></div>
+        <div className="absolute top-4 right-4 w-8 h-8 border-t-4 border-r-4 border-orange-500"></div>
+        <div className="absolute bottom-4 left-4 w-8 h-8 border-b-4 border-l-4 border-orange-500"></div>
+        <div className="absolute bottom-4 right-4 w-8 h-8 border-b-4 border-r-4 border-orange-500"></div>
+      </div>
     </div>
-  );
+  )
 }
